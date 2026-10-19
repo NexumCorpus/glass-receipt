@@ -2,11 +2,13 @@
 
     python selftest.py          # Python 3.8+, standard library only, offline, a few seconds; exit 0 = all as expected
 
-Copies the published bundle to a temporary folder three times and runs this repo's verify.py on each:
-  1. untouched                                    -> expect VERIFIED and the published ROOT
+Copies the published bundle to a temporary folder three times and runs this repo's verify.py on each, with
+--root set to the published root:
+  1. untouched                                         -> expect VERIFIED, ROOT matches
   2. one ranking-table number forged, MANIFEST rebuilt -> expect NOT VERIFIED (REPLAY names the cell)
-  3. one prose word forged, MANIFEST rebuilt          -> expect VERIFIED but a ROOT that differs from the published one
-Case 3 is the honest limit: replay cannot see prose, so the published ROOT is what protects it.
+  3. one prose word forged, MANIFEST rebuilt           -> expect NOT VERIFIED, caught only because ROOT differs
+Case 3 is the limit, stated: replay cannot see prose. Without --root the verdict for case 3 would be
+"VERIFIED (root not checked)"; only the published root protects prose.
 """
 import hashlib
 import re
@@ -28,7 +30,7 @@ def rebuild_manifest(b):
         if line.strip():
             rel = line.split("  ", 1)[1]
             lines.append(f"{hashlib.sha256((b / rel).read_bytes()).hexdigest()}  {rel}")
-    man.write_text("\n".join(lines) + "\n", encoding="utf-8", newline="\n")
+    man.write_bytes(("\n".join(lines) + "\n").encode("utf-8"))
 
 
 def forge(b, old, new):
@@ -40,7 +42,7 @@ def forge(b, old, new):
 
 
 def verify(b):
-    out = subprocess.run([sys.executable, "-I", str(HERE / "verify.py"), "--bundle", str(b)],
+    out = subprocess.run([sys.executable, "-I", str(HERE / "verify.py"), "--bundle", str(b), "--root", PUBLISHED_ROOT],
                          capture_output=True, text=True).stdout
     root = re.search(r"ROOT: (\w+)", out)
     return "VERDICT: VERIFIED" in out, (root.group(1) if root else None), out
@@ -50,7 +52,7 @@ def main():
     cases = [
         ("untouched", None, True, True),
         ("table cell forged: #148 suite 1462 -> 1463 pass", ("| 1462 pass |", "| 1463 pass |"), False, False),
-        ("prose forged: 'Correct, minimal' -> 'Correct, elegant'", ("Correct, minimal", "Correct, elegant"), True, False),
+        ("prose forged: 'Correct, minimal' -> 'Correct, elegant'", ("Correct, minimal", "Correct, elegant"), False, False),
     ]
     failed = 0
     with tempfile.TemporaryDirectory() as tmp:

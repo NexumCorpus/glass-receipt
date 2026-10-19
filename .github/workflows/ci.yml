@@ -3,6 +3,7 @@ on: [push, pull_request]
 jobs:
   verify:
     strategy:
+      fail-fast: false
       matrix:
         os: [ubuntu-latest, windows-latest]
         python: ["3.8", "3.13"]
@@ -12,7 +13,7 @@ jobs:
       - uses: actions/setup-python@v5
         with:
           python-version: ${{ matrix.python }}
-      - run: python verify.py
+      - run: python verify.py --root 209eab8facfd85798cd08f557224e48a55bf3ba76982f814568b1c0a49658be2
       - run: python selftest.py
       - run: python verify.py
         working-directory: bundle-protoprimer-143

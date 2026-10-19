@@ -20,7 +20,9 @@ VERDICT: VERIFIED
 ```
 
 `ROOT` is the SHA-256 of the bundle's manifest. This line and the git history are its published anchor.
-From the repo root, `python verify.py` checks every bundle with the root copy of the verifier, never the bundle's own.
+From the repo root, `python verify.py --root 209eab8facfd85798cd08f557224e48a55bf3ba76982f814568b1c0a49658be2` checks
+every bundle with the root copy of the verifier (never the bundle's own) and also requires the published root:
+`VERDICT: VERIFIED (root matches the published root)`. Without `--root` it says `VERIFIED (root not checked)`.
 
 **Don't take the verifier's word either.** `python selftest.py` (same requirements, under a second) forges two copies of
 the bundle with the manifest rebuilt and checks what the verifier says about each:
@@ -29,11 +31,12 @@ the bundle with the manifest rebuilt and checks what the verifier says about eac
 ok   case 1, untouched: VERIFIED, ROOT matches
 ok   case 2, table cell forged: #148 suite 1462 -> 1463 pass: NOT VERIFIED, ROOT differs
        - #148 full suite: report says '1463 pass', logs say 1462 passed, 0 failed
-ok   case 3, prose forged: 'Correct, minimal' -> 'Correct, elegant': VERIFIED, ROOT differs
+ok   case 3, prose forged: 'Correct, minimal' -> 'Correct, elegant': NOT VERIFIED, ROOT differs
 SELFTEST: PASS
 ```
 
-Case 3 is the limit, stated: replay cannot see prose. Only a ROOT that differs from the published one exposes it.
+Case 3 is the limit, stated: replay cannot see prose. The forgery is caught only because its ROOT differs from the
+published one, which is why the self-test passes `--root`.
 CI runs all three commands on Linux and Windows, Python 3.8 and 3.13.
 
 ## The first bundle: 13 competing PRs on uvsmtid/protoprimer#143
@@ -56,20 +59,23 @@ type: a start, not a proof.
 
 Trial 2 ([TRIAL-2.md](TRIAL-2.md)) forged prose instead, with a different verifier model (Sonnet) working from this
 public repo. The local verdict said VERIFIED for the forgery, as predicted. The model still refused it, because it
-compared the files with the published ones and named the changed line. That's why the published ROOT matters.
+compared the files with the published ones and named the changed line. That's why the published ROOT matters, and
+why `verify.py` now says "root not checked" unless you give it `--root`. Trial 3 ([TRIAL-3.md](TRIAL-3.md)) re-ran the
+blind check with a fresh Haiku and no contamination. It caught a prose forgery that didn't change the meaning, at the
+exact line, in 116 s. That makes 6 of 6 correct calls across 3 trials.
 
 ## What it does not claim
 
 - It does not re-run the 13 test suites. It checks that the report matches the logs, not that the logs are honest.
 - Prose and the `Diff` column are not replayed. Only the published ROOT protects them.
-- Two trials, one verifier each, two tamper types. This is evidence that the idea works, not a security proof.
+- Three trials, one verifier each, two tamper types. This is evidence that the idea works, not a security proof.
 
 ## Files
 
 - `verify.py`: the verifier (also copied into each bundle).
 - `make_bundle.py`: how the bundle is built from the triage logs (author paths are local; shown for transparency).
 - `selftest.py`: the forgery check above.
-- `TRIAL-1.md`, `TRIAL-2.md`: trial protocols, kill rules written before each ran, and results.
+- `TRIAL-1.md` to `TRIAL-3.md`: trial protocols, kill rules written before each ran, and results.
 
 ## Where it sits
 
