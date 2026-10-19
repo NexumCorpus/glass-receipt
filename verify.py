@@ -154,7 +154,7 @@ def run_bundles():
         return 2
     worst = 0
     for b in bundles:
-        print(f"== {b.name}")
+        print(f"== {b.name}", flush=True)
         worst = max(worst, subprocess.run([sys.executable, "-I", "verify.py"], cwd=b).returncode)
     return worst
 
