@@ -15,7 +15,7 @@ Python 3.8+, standard library only, offline, about one second. Expected output e
 
 ```
 REPLAY: PASS (53 cells recomputed from raw logs)
-ROOT: e26869d05c62625a9989d9222838ed1af7542941d71d334b189756003b80c646
+ROOT: 209eab8facfd85798cd08f557224e48a55bf3ba76982f814568b1c0a49658be2
 VERDICT: VERIFIED
 ```
 

@@ -28,4 +28,4 @@ second, different verifier model.
 
 **Revision 2026-10-19 (same day).** Referee R2 v2 (accepts bash-when-installed, as the merged #159 does): #144 13->14/17,
 #152 10->11/17; report revised with a dated note. Public bundle blanks the Author column (PRs by number only) and the
-local username in pytest tmp paths. Published root: e26869d05c62625a9989d9222838ed1af7542941d71d334b189756003b80c646.
+local username in pytest tmp paths. Published root: 209eab8facfd85798cd08f557224e48a55bf3ba76982f814568b1c0a49658be2.
