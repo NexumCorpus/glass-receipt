@@ -1,6 +1,7 @@
 """verify.py - check a Glass Receipt bundle without trusting its author. Python 3.8+, standard library only, offline.
 
     python verify.py            # run inside the bundle folder; exit 0 = VERIFIED, 1 = NOT VERIFIED
+    python verify.py --root <hex>   # also require ROOT to equal the root the author published (e.g. in a git commit)
 
 Three checks:
   1. INTEGRITY  every file listed in MANIFEST.sha256 exists and matches its SHA-256; no unlisted evidence files.
@@ -9,7 +10,9 @@ Three checks:
                 with what the report says. A report edited after the fact fails here even if the manifest was rebuilt.
   3. ROW        the attached Night Adversary ledger row is well-formed and its verdict follows from its own fields.
 The ROOT line is the SHA-256 of MANIFEST.sha256. Compare it with the root the author published elsewhere (e.g. a git
-commit); a match means you hold exactly the bundle that was published.
+commit); a match means you hold exactly the bundle that was published. Pass it as --root to have the verdict check it;
+without --root the verdict says "VERIFIED (root not checked)", because the checks above prove the bundle is consistent,
+not that it is the bundle that was published.
 """
 import hashlib
 import json
@@ -156,9 +159,14 @@ def run_bundles():
     failed = False
     for b in bundles:
         print(f"== {b.name}", flush=True)
-        rc = subprocess.run([sys.executable, "-I", str(Path(__file__).resolve()), "--bundle", str(b)]).returncode
+        extra = ["--root", arg("--root")] if arg("--root") else []
+        rc = subprocess.run([sys.executable, "-I", str(Path(__file__).resolve()), "--bundle", str(b), *extra]).returncode
         failed = failed or rc != 0
     return 1 if failed else 0
+
+
+def arg(flag):
+    return sys.argv[sys.argv.index(flag) + 1].strip().lower() if flag in sys.argv[:-1] else None
 
 
 def main():
@@ -176,9 +184,13 @@ def main():
         print(f"{name}: {'PASS' if not probs else 'FAIL'}{extra}")
         for p in probs:
             print(f"  - {p}")
+    want = arg("--root")
     print(f"ROOT: {root}")
-    ok = not (ip or rp or ap)
-    print("VERDICT:", "VERIFIED" if ok else "NOT VERIFIED")
+    if want:
+        print(f"ROOT CHECK: {'PASS' if want == root else 'FAIL'} (published root {want})")
+    ok = not (ip or rp or ap) and (want is None or want == root)
+    note = "" if not ok else (" (root matches the published root)" if want else " (root not checked: pass --root <published hex>)")
+    print("VERDICT:", ("VERIFIED" if ok else "NOT VERIFIED") + note)
     return 0 if ok else 1
 
 
