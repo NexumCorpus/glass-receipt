@@ -11,10 +11,11 @@ cd bundle-protoprimer-143
 python verify.py
 ```
 
-Python 3.8+, standard library only, offline, about one second. Expected output ends with:
+Python 3.8+, standard library only, offline, about one second. Expected output (last four lines):
 
 ```
 REPLAY: PASS (53 cells recomputed from raw logs)
+ROW: PASS
 ROOT: 209eab8facfd85798cd08f557224e48a55bf3ba76982f814568b1c0a49658be2
 VERDICT: VERIFIED
 ```
@@ -22,7 +23,11 @@ VERDICT: VERIFIED
 `ROOT` is the SHA-256 of the bundle's manifest. This line and the git history are its published anchor.
 From the repo root, `python verify.py --root 209eab8facfd85798cd08f557224e48a55bf3ba76982f814568b1c0a49658be2` checks
 every bundle with the root copy of the verifier (never the bundle's own) and also requires the published root:
-`VERDICT: VERIFIED (root matches the published root)`. Without `--root` it says `VERIFIED (root not checked)`.
+`VERDICT: VERIFIED (root matches the published root)`. Without `--root` it says `VERIFIED (root not checked: pass --root <published hex>)`.
+
+**Use `--root` only from the repo root.** The bundle's own `verify.py` is part of the sealed bundle and predates `--root`:
+inside `bundle-protoprimer-143/` it ignores the flag, so a wrong root there still prints `VERDICT: VERIFIED`. It is left
+unchanged because editing it would change the published root. (Found by a clean-VM reproduction, `repro/` on PR #1.)
 
 **Don't take the verifier's word either.** `python selftest.py` (same requirements, under a second) forges two copies of
 the bundle with the manifest rebuilt and checks what the verifier says about each:
