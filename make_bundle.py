@@ -15,7 +15,7 @@ SRC = Path("E:/bounties/triage")
 HERE = Path(__file__).resolve().parent
 ADV_ROW = Path("E:/station/prophet/night-adversary/ledger-v2.jsonl")
 PRS = [str(n) for n in range(144, 157)]
-TAMPER = ("| 7 | #147 | jmass-ggg | **2 failed**, 1474 pass |", "| 7 | #147 | jmass-ggg | 1476 pass |")
+TAMPER = ("| 7 | #147 | - | **2 failed**, 1474 pass |", "| 7 | #147 | - | 1476 pass |")
 
 
 def manifest(out: Path):

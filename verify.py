@@ -146,21 +146,27 @@ def row():
 
 
 def run_bundles():
-    """run from the repo root: verify every bundle folder below (each carries its own verify.py)"""
+    """run from the repo root: check every bundle folder below with THIS file's code, never with the bundle's own
+    verify.py (a bundle is untrusted input). Any nonzero or signal exit counts as a failure."""
     import subprocess
     bundles = sorted(p.parent for p in HERE.glob("*/MANIFEST.sha256"))
     if not bundles:
         print("no bundle here: cd into a bundle folder (one with MANIFEST.sha256) and run python verify.py")
         return 2
-    worst = 0
+    failed = False
     for b in bundles:
         print(f"== {b.name}", flush=True)
-        worst = max(worst, subprocess.run([sys.executable, "-I", "verify.py"], cwd=b).returncode)
-    return worst
+        rc = subprocess.run([sys.executable, "-I", str(Path(__file__).resolve()), "--bundle", str(b)]).returncode
+        failed = failed or rc != 0
+    return 1 if failed else 0
 
 
 def main():
-    if not (HERE / "report.md").exists():
+    global HERE, EV
+    if "--bundle" in sys.argv:
+        HERE = Path(sys.argv[sys.argv.index("--bundle") + 1]).resolve()
+        EV = HERE / "evidence"
+    elif not (HERE / "report.md").exists():
         return run_bundles()
     ip, root = integrity()
     rp, n = replay()
