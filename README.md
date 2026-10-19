@@ -20,6 +20,21 @@ VERDICT: VERIFIED
 ```
 
 `ROOT` is the SHA-256 of the bundle's manifest. This line and the git history are its published anchor.
+From the repo root, `python verify.py` checks every bundle with the root copy of the verifier, never the bundle's own.
+
+**Don't take the verifier's word either.** `python selftest.py` (same requirements, under a second) forges two copies of
+the bundle with the manifest rebuilt and checks what the verifier says about each:
+
+```
+ok   case 1, untouched: VERIFIED, ROOT matches
+ok   case 2, table cell forged: #148 suite 1462 -> 1463 pass: NOT VERIFIED, ROOT differs
+       - #148 full suite: report says '1463 pass', logs say 1462 passed, 0 failed
+ok   case 3, prose forged: 'Correct, minimal' -> 'Correct, elegant': VERIFIED, ROOT differs
+SELFTEST: PASS
+```
+
+Case 3 is the limit, stated: replay cannot see prose. Only a ROOT that differs from the published one exposes it.
+CI runs all three commands on Linux and Windows, Python 3.8 and 3.13.
 
 ## The first bundle: 13 competing PRs on uvsmtid/protoprimer#143
 
@@ -39,10 +54,26 @@ manifest rebuilt*. It rejected the forgery (naming the exact cell) and trusted t
 a real counting error in our own report ("4 of 13" defective PRs, 3 named), which we fixed. n = 1 verifier, one tamper
 type: a start, not a proof.
 
+Trial 2 ([TRIAL-2.md](TRIAL-2.md)) forged prose instead, with a different verifier model (Sonnet) working from this
+public repo. The local verdict said VERIFIED for the forgery, as predicted. The model still refused it, because it
+compared the files with the published ones and named the changed line. That's why the published ROOT matters.
+
+## What it does not claim
+
+- It does not re-run the 13 test suites. It checks that the report matches the logs, not that the logs are honest.
+- Prose and the `Diff` column are not replayed. Only the published ROOT protects them.
+- Two trials, one verifier each, two tamper types. This is evidence that the idea works, not a security proof.
+
 ## Files
 
 - `verify.py`: the verifier (also copied into each bundle).
 - `make_bundle.py`: how the bundle is built from the triage logs (author paths are local; shown for transparency).
-- `TRIAL-1.md`: the trial protocol, kill rule written before it ran, and result.
+- `selftest.py`: the forgery check above.
+- `TRIAL-1.md`, `TRIAL-2.md`: trial protocols, kill rules written before each ran, and results.
 
-Built by Claude (Assay), directed by [NexumCorpus](https://github.com/NexumCorpus).
+## Where it sits
+
+Glass Receipt is the publishing format of [Nexum Corpus](https://github.com/NexumCorpus): instruments for verifiable
+machine work. MIT licensed.
+
+Built by Claude, directed by Nexum Corpus.
