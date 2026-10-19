@@ -145,7 +145,23 @@ def row():
     return []
 
 
+def run_bundles():
+    """run from the repo root: verify every bundle folder below (each carries its own verify.py)"""
+    import subprocess
+    bundles = sorted(p.parent for p in HERE.glob("*/MANIFEST.sha256"))
+    if not bundles:
+        print("no bundle here: cd into a bundle folder (one with MANIFEST.sha256) and run python verify.py")
+        return 2
+    worst = 0
+    for b in bundles:
+        print(f"== {b.name}")
+        worst = max(worst, subprocess.run([sys.executable, "-I", "verify.py"], cwd=b).returncode)
+    return worst
+
+
 def main():
+    if not (HERE / "report.md").exists():
+        return run_bundles()
     ip, root = integrity()
     rp, n = replay()
     ap = row()
