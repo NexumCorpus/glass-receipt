@@ -1,0 +1,31 @@
+.........s...s.....                                                      [100%]
+==================================== PASSES ====================================
+____________________ test_kernel_under_test_is_the_worktree ____________________
+----------------------------- Captured stdout call -----------------------------
+kernel under test: /mnt/e/bounties/triage/wt/pr-150/src/proto_code/proto_kernel.py
+_____________________ test_R1_no_shell_no_bash_returns_sh ______________________
+------------------------------ Captured log call -------------------------------
+WARNING  root:proto_kernel.py:1281 env var `SHELL` is not set - assuming `/bin/sh` as default
+____________ test_R2_no_shell_with_bash_on_path_returns_bash_or_sh _____________
+------------------------------ Captured log call -------------------------------
+WARNING  root:proto_kernel.py:1281 env var `SHELL` is not set - assuming `/bin/sh` as default
+=========================== short test summary info ============================
+PASSED test_referee.py::test_kernel_under_test_is_the_worktree
+PASSED test_referee.py::test_R1_no_shell_no_bash_returns_sh
+PASSED test_referee.py::test_R2_no_shell_with_bash_on_path_returns_bash_or_sh
+PASSED test_referee.py::test_R3_shell_bin_sh_returns_sh
+PASSED test_referee.py::test_R4_fish_raises_value_error
+PASSED test_referee.py::test_R5_command_line_and_env
+PASSED test_referee.py::test_R6_init_file_has_no_bashisms
+PASSED test_referee.py::test_R7_real_sh_applies_init_file[plain-path-/bin/sh]
+PASSED test_referee.py::test_R7_real_sh_applies_init_file[plain-path-/usr/bin/dash]
+PASSED test_referee.py::test_R7_real_sh_applies_init_file[plain-path-bash-posix]
+PASSED test_referee.py::test_R7_real_sh_applies_init_file[path-with-space-/bin/sh]
+PASSED test_referee.py::test_R7_real_sh_applies_init_file[path-with-space-/usr/bin/dash]
+PASSED test_referee.py::test_R7_real_sh_applies_init_file[path-with-space-bash-posix]
+PASSED test_referee.py::test_R8_bash_zsh_identical_to_base[plain-path-/bin/bash]
+PASSED test_referee.py::test_R8_bash_zsh_identical_to_base[plain-path-/usr/bin/zsh]
+PASSED test_referee.py::test_R8_bash_zsh_identical_to_base[path-with-space-/bin/bash]
+PASSED test_referee.py::test_R8_bash_zsh_identical_to_base[path-with-space-/usr/bin/zsh]
+SKIPPED [2] test_referee.py:137: /bin/busybox not installed
+17 passed, 2 skipped in 0.18s

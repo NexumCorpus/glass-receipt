@@ -1,0 +1,6 @@
+150	CLEAN	0	25 passed, 2 skipped in 1.68s
+150	MASK	1	4 failed, 21 passed, 2 skipped in 3.24s
+150	M1	1	2 failed, 23 passed, 2 skipped in 1.92s
+150	M2	1	4 failed, 21 passed, 2 skipped in 2.93s
+150	M3	1	2 failed, 23 passed, 2 skipped in 2.82s
+150	M4	1	2 failed, 23 passed, 2 skipped in 2.70s

@@ -1,0 +1,24 @@
+{
+ "at": "2026-10-12T02:30:22",
+ "nex": {
+  "bin": "E:\\station\\prophet\\nex-build\\release\\nex.exe",
+  "commit": "9d58f94"
+ },
+ "case": "calegeffre__WhatTheFed__4",
+ "pr": "https://github.com/calegeffre/WhatTheFed/pull/4",
+ "kind": "SIG",
+ "change": "SIG load_backtest_inputs in backtest.py (2 existing call sites updated)",
+ "nex_named": [
+  "build_site",
+  "load_backtest_inputs"
+ ],
+ "nex_named_really_broken": null,
+ "git_refused_merge": true,
+ "truth_broken_calls": null,
+ "should_flag": true,
+ "nex_flagged": true,
+ "nex_conflicts": 2,
+ "nex_exit": 1,
+ "nex_secs": 0.9,
+ "nex_err": ""
+}

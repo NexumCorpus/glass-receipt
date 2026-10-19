@@ -1,0 +1,216 @@
+......FFFs.FFsF....                                                      [100%]
+=================================== FAILURES ===================================
+______________________ test_R6_init_file_has_no_bashisms _______________________
+
+tmp_path = PosixPath('/tmp/pytest-of-user/pytest-22/test_R6_init_file_has_no_bashi0')
+
+    def test_R6_init_file_has_no_bashisms(tmp_path):
+        venv = _make_fake_venv(tmp_path)
+        d = _get_driver(k, {"SHELL": "/bin/sh"}, tmp_path, which_bash=None)
+        cap = _capture_exec(d, "true", venv)
+        text = open(cap["env"]["ENV"]).read()
+        code = "\n".join(l for l in text.splitlines() if not l.strip().startswith("#"))
+        bad = [
+            p
+            for p in (r"\bsource\b", r"\[\[", r"echo -e", r"\blocal\b", r"\$'", r"\bwhich\b", r"\bdeclare\b")
+            if re.search(p, code)
+        ]
+>       assert not bad, f"non-POSIX constructs in init file: {bad}\n{text}"
+E       AssertionError: non-POSIX constructs in init file: ['\\bsource\\b']
+E         
+E         # Load user settings if available:
+E         test -f ~/.shrc && source ~/.shrc || true
+E         # Activate `venv`:
+E         if [ "true" = "true" ]
+E         then
+E             source /tmp/pytest-of-user/pytest-22/test_R6_init_file_has_no_bashi0/fake venv/bin/activate
+E         fi
+E         
+E       assert not ['\\bsource\\b']
+
+test_referee.py:129: AssertionError
+____________ test_R7_real_sh_applies_init_file[plain-path-/bin/sh] _____________
+
+tmp_path = PosixPath('/tmp/pytest-of-user/pytest-22/test_R7_real_sh_applies_init_f0')
+sh = '/bin/sh', venv_name = 'fake_venv'
+
+    @pytest.mark.parametrize("sh", ["/bin/sh", "/usr/bin/dash", "/bin/busybox", "bash-posix"])
+    @pytest.mark.parametrize("venv_name", ["fake_venv", "fake venv"], ids=["plain-path", "path-with-space"])
+    def test_R7_real_sh_applies_init_file(tmp_path, sh, venv_name):
+        if sh != "bash-posix" and not os.path.exists(sh):
+            pytest.skip(f"{sh} not installed")
+        venv = _make_fake_venv(tmp_path, venv_name)
+        home = tmp_path / "home"
+        home.mkdir()
+        d = _get_driver(k, {"SHELL": "/bin/sh", "PATH": "/usr/bin:/bin", "HOME": str(home)}, tmp_path, which_bash=None)
+        cap = _capture_exec(d, 'echo "MARK=$REFEREE_MARK"', venv)
+        args = list(cap["args"])
+        if sh == "bash-posix":
+            args = ["/bin/bash", "--posix"] + args[1:]
+        elif sh == "/bin/busybox":
+            args = ["/bin/busybox", "sh"] + args[1:]
+        else:
+            args[0] = sh
+        env = dict(cap["env"])
+        env.pop("REFEREE_MARK", None)
+        proc = subprocess.run(args, env=env, stdin=subprocess.DEVNULL, capture_output=True, text=True, timeout=30)
+>       assert "MARK=activated" in proc.stdout, f"stdout={proc.stdout!r} stderr={proc.stderr!r}"
+E       AssertionError: stdout='MARK=\n' stderr='/bin/sh: 7: source: not found\n'
+E       assert 'MARK=activated' in 'MARK=\n'
+E        +  where 'MARK=\n' = CompletedProcess(args=['/bin/sh', '-i', '-c', 'echo "MARK=$REFEREE_MARK"'], returncode=0, stdout='MARK=\n', stderr='/bin/sh: 7: source: not found\n').stdout
+
+test_referee.py:153: AssertionError
+_________ test_R7_real_sh_applies_init_file[plain-path-/usr/bin/dash] __________
+
+tmp_path = PosixPath('/tmp/pytest-of-user/pytest-22/test_R7_real_sh_applies_init_f1')
+sh = '/usr/bin/dash', venv_name = 'fake_venv'
+
+    @pytest.mark.parametrize("sh", ["/bin/sh", "/usr/bin/dash", "/bin/busybox", "bash-posix"])
+    @pytest.mark.parametrize("venv_name", ["fake_venv", "fake venv"], ids=["plain-path", "path-with-space"])
+    def test_R7_real_sh_applies_init_file(tmp_path, sh, venv_name):
+        if sh != "bash-posix" and not os.path.exists(sh):
+            pytest.skip(f"{sh} not installed")
+        venv = _make_fake_venv(tmp_path, venv_name)
+        home = tmp_path / "home"
+        home.mkdir()
+        d = _get_driver(k, {"SHELL": "/bin/sh", "PATH": "/usr/bin:/bin", "HOME": str(home)}, tmp_path, which_bash=None)
+        cap = _capture_exec(d, 'echo "MARK=$REFEREE_MARK"', venv)
+        args = list(cap["args"])
+        if sh == "bash-posix":
+            args = ["/bin/bash", "--posix"] + args[1:]
+        elif sh == "/bin/busybox":
+            args = ["/bin/busybox", "sh"] + args[1:]
+        else:
+            args[0] = sh
+        env = dict(cap["env"])
+        env.pop("REFEREE_MARK", None)
+        proc = subprocess.run(args, env=env, stdin=subprocess.DEVNULL, capture_output=True, text=True, timeout=30)
+>       assert "MARK=activated" in proc.stdout, f"stdout={proc.stdout!r} stderr={proc.stderr!r}"
+E       AssertionError: stdout='MARK=\n' stderr='/usr/bin/dash: 7: source: not found\n'
+E       assert 'MARK=activated' in 'MARK=\n'
+E        +  where 'MARK=\n' = CompletedProcess(args=['/usr/bin/dash', '-i', '-c', 'echo "MARK=$REFEREE_MARK"'], returncode=0, stdout='MARK=\n', stderr='/usr/bin/dash: 7: source: not found\n').stdout
+
+test_referee.py:153: AssertionError
+__________ test_R7_real_sh_applies_init_file[path-with-space-/bin/sh] __________
+
+tmp_path = PosixPath('/tmp/pytest-of-user/pytest-22/test_R7_real_sh_applies_init_f4')
+sh = '/bin/sh', venv_name = 'fake venv'
+
+    @pytest.mark.parametrize("sh", ["/bin/sh", "/usr/bin/dash", "/bin/busybox", "bash-posix"])
+    @pytest.mark.parametrize("venv_name", ["fake_venv", "fake venv"], ids=["plain-path", "path-with-space"])
+    def test_R7_real_sh_applies_init_file(tmp_path, sh, venv_name):
+        if sh != "bash-posix" and not os.path.exists(sh):
+            pytest.skip(f"{sh} not installed")
+        venv = _make_fake_venv(tmp_path, venv_name)
+        home = tmp_path / "home"
+        home.mkdir()
+        d = _get_driver(k, {"SHELL": "/bin/sh", "PATH": "/usr/bin:/bin", "HOME": str(home)}, tmp_path, which_bash=None)
+        cap = _capture_exec(d, 'echo "MARK=$REFEREE_MARK"', venv)
+        args = list(cap["args"])
+        if sh == "bash-posix":
+            args = ["/bin/bash", "--posix"] + args[1:]
+        elif sh == "/bin/busybox":
+            args = ["/bin/busybox", "sh"] + args[1:]
+        else:
+            args[0] = sh
+        env = dict(cap["env"])
+        env.pop("REFEREE_MARK", None)
+        proc = subprocess.run(args, env=env, stdin=subprocess.DEVNULL, capture_output=True, text=True, timeout=30)
+>       assert "MARK=activated" in proc.stdout, f"stdout={proc.stdout!r} stderr={proc.stderr!r}"
+E       AssertionError: stdout='MARK=\n' stderr='/bin/sh: 7: source: not found\n'
+E       assert 'MARK=activated' in 'MARK=\n'
+E        +  where 'MARK=\n' = CompletedProcess(args=['/bin/sh', '-i', '-c', 'echo "MARK=$REFEREE_MARK"'], returncode=0, stdout='MARK=\n', stderr='/bin/sh: 7: source: not found\n').stdout
+
+test_referee.py:153: AssertionError
+_______ test_R7_real_sh_applies_init_file[path-with-space-/usr/bin/dash] _______
+
+tmp_path = PosixPath('/tmp/pytest-of-user/pytest-22/test_R7_real_sh_applies_init_f5')
+sh = '/usr/bin/dash', venv_name = 'fake venv'
+
+    @pytest.mark.parametrize("sh", ["/bin/sh", "/usr/bin/dash", "/bin/busybox", "bash-posix"])
+    @pytest.mark.parametrize("venv_name", ["fake_venv", "fake venv"], ids=["plain-path", "path-with-space"])
+    def test_R7_real_sh_applies_init_file(tmp_path, sh, venv_name):
+        if sh != "bash-posix" and not os.path.exists(sh):
+            pytest.skip(f"{sh} not installed")
+        venv = _make_fake_venv(tmp_path, venv_name)
+        home = tmp_path / "home"
+        home.mkdir()
+        d = _get_driver(k, {"SHELL": "/bin/sh", "PATH": "/usr/bin:/bin", "HOME": str(home)}, tmp_path, which_bash=None)
+        cap = _capture_exec(d, 'echo "MARK=$REFEREE_MARK"', venv)
+        args = list(cap["args"])
+        if sh == "bash-posix":
+            args = ["/bin/bash", "--posix"] + args[1:]
+        elif sh == "/bin/busybox":
+            args = ["/bin/busybox", "sh"] + args[1:]
+        else:
+            args[0] = sh
+        env = dict(cap["env"])
+        env.pop("REFEREE_MARK", None)
+        proc = subprocess.run(args, env=env, stdin=subprocess.DEVNULL, capture_output=True, text=True, timeout=30)
+>       assert "MARK=activated" in proc.stdout, f"stdout={proc.stdout!r} stderr={proc.stderr!r}"
+E       AssertionError: stdout='MARK=\n' stderr='/usr/bin/dash: 7: source: not found\n'
+E       assert 'MARK=activated' in 'MARK=\n'
+E        +  where 'MARK=\n' = CompletedProcess(args=['/usr/bin/dash', '-i', '-c', 'echo "MARK=$REFEREE_MARK"'], returncode=0, stdout='MARK=\n', stderr='/usr/bin/dash: 7: source: not found\n').stdout
+
+test_referee.py:153: AssertionError
+________ test_R7_real_sh_applies_init_file[path-with-space-bash-posix] _________
+
+tmp_path = PosixPath('/tmp/pytest-of-user/pytest-22/test_R7_real_sh_applies_init_f7')
+sh = 'bash-posix', venv_name = 'fake venv'
+
+    @pytest.mark.parametrize("sh", ["/bin/sh", "/usr/bin/dash", "/bin/busybox", "bash-posix"])
+    @pytest.mark.parametrize("venv_name", ["fake_venv", "fake venv"], ids=["plain-path", "path-with-space"])
+    def test_R7_real_sh_applies_init_file(tmp_path, sh, venv_name):
+        if sh != "bash-posix" and not os.path.exists(sh):
+            pytest.skip(f"{sh} not installed")
+        venv = _make_fake_venv(tmp_path, venv_name)
+        home = tmp_path / "home"
+        home.mkdir()
+        d = _get_driver(k, {"SHELL": "/bin/sh", "PATH": "/usr/bin:/bin", "HOME": str(home)}, tmp_path, which_bash=None)
+        cap = _capture_exec(d, 'echo "MARK=$REFEREE_MARK"', venv)
+        args = list(cap["args"])
+        if sh == "bash-posix":
+            args = ["/bin/bash", "--posix"] + args[1:]
+        elif sh == "/bin/busybox":
+            args = ["/bin/busybox", "sh"] + args[1:]
+        else:
+            args[0] = sh
+        env = dict(cap["env"])
+        env.pop("REFEREE_MARK", None)
+        proc = subprocess.run(args, env=env, stdin=subprocess.DEVNULL, capture_output=True, text=True, timeout=30)
+>       assert "MARK=activated" in proc.stdout, f"stdout={proc.stdout!r} stderr={proc.stderr!r}"
+E       AssertionError: stdout='MARK=\n' stderr='bash: /tmp/pytest-of-user/pytest-22/test_R7_real_sh_applies_init_f7/fake: No such file or directory\n'
+E       assert 'MARK=activated' in 'MARK=\n'
+E        +  where 'MARK=\n' = CompletedProcess(args=['/bin/bash', '--posix', '-i', '-c', 'echo "MARK=$REFEREE_MARK"'], returncode=0, stdout='MARK=\n', stderr='bash: /tmp/pytest-of-user/pytest-22/test_R7_real_sh_applies_init_f7/fake: No such file or directory\n').stdout
+
+test_referee.py:153: AssertionError
+==================================== PASSES ====================================
+____________________ test_kernel_under_test_is_the_worktree ____________________
+----------------------------- Captured stdout call -----------------------------
+kernel under test: /mnt/e/bounties/triage/wt/pr-152/src/proto_code/proto_kernel.py
+_____________________ test_R1_no_shell_no_bash_returns_sh ______________________
+------------------------------ Captured log call -------------------------------
+WARNING  root:proto_kernel.py:1259 env var `SHELL` is not set - assuming `bash` as default
+____________ test_R2_no_shell_with_bash_on_path_returns_bash_or_sh _____________
+------------------------------ Captured log call -------------------------------
+WARNING  root:proto_kernel.py:1259 env var `SHELL` is not set - assuming `bash` as default
+=========================== short test summary info ============================
+PASSED test_referee.py::test_kernel_under_test_is_the_worktree
+PASSED test_referee.py::test_R1_no_shell_no_bash_returns_sh
+PASSED test_referee.py::test_R2_no_shell_with_bash_on_path_returns_bash_or_sh
+PASSED test_referee.py::test_R3_shell_bin_sh_returns_sh
+PASSED test_referee.py::test_R4_fish_raises_value_error
+PASSED test_referee.py::test_R5_command_line_and_env
+PASSED test_referee.py::test_R7_real_sh_applies_init_file[plain-path-bash-posix]
+PASSED test_referee.py::test_R8_bash_zsh_identical_to_base[plain-path-/bin/bash]
+PASSED test_referee.py::test_R8_bash_zsh_identical_to_base[plain-path-/usr/bin/zsh]
+PASSED test_referee.py::test_R8_bash_zsh_identical_to_base[path-with-space-/bin/bash]
+PASSED test_referee.py::test_R8_bash_zsh_identical_to_base[path-with-space-/usr/bin/zsh]
+SKIPPED [2] test_referee.py:137: /bin/busybox not installed
+FAILED test_referee.py::test_R6_init_file_has_no_bashisms - AssertionError: n...
+FAILED test_referee.py::test_R7_real_sh_applies_init_file[plain-path-/bin/sh]
+FAILED test_referee.py::test_R7_real_sh_applies_init_file[plain-path-/usr/bin/dash]
+FAILED test_referee.py::test_R7_real_sh_applies_init_file[path-with-space-/bin/sh]
+FAILED test_referee.py::test_R7_real_sh_applies_init_file[path-with-space-/usr/bin/dash]
+FAILED test_referee.py::test_R7_real_sh_applies_init_file[path-with-space-bash-posix]
+6 failed, 11 passed, 2 skipped in 0.89s

@@ -1,0 +1,76 @@
+.........s...s...FF                                                      [100%]
+=================================== FAILURES ===================================
+________ test_R8_bash_zsh_identical_to_base[path-with-space-/bin/bash] _________
+
+tmp_path = PosixPath('/tmp/pytest-of-user/pytest-16/test_R8_bash_zsh_identical_to_2')
+shell = '/bin/bash', venv_name = 'fake venv'
+
+    @pytest.mark.parametrize("shell", ["/bin/bash", "/usr/bin/zsh"])
+    @pytest.mark.parametrize("venv_name", ["fake_venv", "fake venv"], ids=["plain-path", "path-with-space"])
+    def test_R8_bash_zsh_identical_to_base(tmp_path, shell, venv_name):
+        base = _load_base()
+        venv = _make_fake_venv(tmp_path, venv_name)
+        out = {}
+        for name, mod in (("base", base), ("pr", k)):
+            d = _get_driver(mod, {"SHELL": shell, "PATH": "/usr/bin:/bin"}, tmp_path, which_bash="/usr/bin/bash")
+            cap = _capture_exec(d, "echo hi", venv)
+            out[name] = (type(d).__name__, cap["args"], cap["env"], open(d.get_init_file_abs_path()).read())
+>       assert out["pr"] == out["base"]
+E       assert ('ShellDriver...ivate'\nfi\n") == ('ShellDriver...tivate\nfi\n')
+E         
+E         At index 3 diff: '\n# Load user settings if available:\ntest -f ~/.bashrc && source ~/.bashrc || true\n# Activate `venv`:\nif [ "true" = "true" ]\nthen\n    source \'/tmp/pytest-of-user/pytest-16/test_R8_bash_zsh_identical_to_2/fake venv/bin/activate\'\nfi\n' != '\n# Load user settings if available:\ntest -f ~/.bashrc && source ~/.bashrc || true\n# Activate `venv`:\nif [ "true" = "true" ]\nthen\n    source /tmp/pytest-of-user/pytest-16/test_R8_bash_zsh_identical_to_2/fake venv/bin/activate\nfi\n'
+E         Use -v to get more diff
+
+test_referee.py:167: AssertionError
+_______ test_R8_bash_zsh_identical_to_base[path-with-space-/usr/bin/zsh] _______
+
+tmp_path = PosixPath('/tmp/pytest-of-user/pytest-16/test_R8_bash_zsh_identical_to_3')
+shell = '/usr/bin/zsh', venv_name = 'fake venv'
+
+    @pytest.mark.parametrize("shell", ["/bin/bash", "/usr/bin/zsh"])
+    @pytest.mark.parametrize("venv_name", ["fake_venv", "fake venv"], ids=["plain-path", "path-with-space"])
+    def test_R8_bash_zsh_identical_to_base(tmp_path, shell, venv_name):
+        base = _load_base()
+        venv = _make_fake_venv(tmp_path, venv_name)
+        out = {}
+        for name, mod in (("base", base), ("pr", k)):
+            d = _get_driver(mod, {"SHELL": shell, "PATH": "/usr/bin:/bin"}, tmp_path, which_bash="/usr/bin/bash")
+            cap = _capture_exec(d, "echo hi", venv)
+            out[name] = (type(d).__name__, cap["args"], cap["env"], open(d.get_init_file_abs_path()).read())
+>       assert out["pr"] == out["base"]
+E       assert ('ShellDriver...ivate'\nfi\n") == ('ShellDriver...tivate\nfi\n')
+E         
+E         At index 3 diff: '\n# Load user settings if available:\ntest -f ~/.zshrc && source ~/.zshrc || true\n# Activate `venv`:\nif [ "true" = "true" ]\nthen\n    source \'/tmp/pytest-of-user/pytest-16/test_R8_bash_zsh_identical_to_3/fake venv/bin/activate\'\nfi\n' != '\n# Load user settings if available:\ntest -f ~/.zshrc && source ~/.zshrc || true\n# Activate `venv`:\nif [ "true" = "true" ]\nthen\n    source /tmp/pytest-of-user/pytest-16/test_R8_bash_zsh_identical_to_3/fake venv/bin/activate\nfi\n'
+E         Use -v to get more diff
+
+test_referee.py:167: AssertionError
+==================================== PASSES ====================================
+____________________ test_kernel_under_test_is_the_worktree ____________________
+----------------------------- Captured stdout call -----------------------------
+kernel under test: /mnt/e/bounties/triage/wt/pr-149/src/proto_code/proto_kernel.py
+_____________________ test_R1_no_shell_no_bash_returns_sh ______________________
+------------------------------ Captured log call -------------------------------
+WARNING  root:proto_kernel.py:1277 env var `SHELL` is not set - assuming [/bin/sh] as default
+____________ test_R2_no_shell_with_bash_on_path_returns_bash_or_sh _____________
+------------------------------ Captured log call -------------------------------
+WARNING  root:proto_kernel.py:1277 env var `SHELL` is not set - assuming [/bin/sh] as default
+=========================== short test summary info ============================
+PASSED test_referee.py::test_kernel_under_test_is_the_worktree
+PASSED test_referee.py::test_R1_no_shell_no_bash_returns_sh
+PASSED test_referee.py::test_R2_no_shell_with_bash_on_path_returns_bash_or_sh
+PASSED test_referee.py::test_R3_shell_bin_sh_returns_sh
+PASSED test_referee.py::test_R4_fish_raises_value_error
+PASSED test_referee.py::test_R5_command_line_and_env
+PASSED test_referee.py::test_R6_init_file_has_no_bashisms
+PASSED test_referee.py::test_R7_real_sh_applies_init_file[plain-path-/bin/sh]
+PASSED test_referee.py::test_R7_real_sh_applies_init_file[plain-path-/usr/bin/dash]
+PASSED test_referee.py::test_R7_real_sh_applies_init_file[plain-path-bash-posix]
+PASSED test_referee.py::test_R7_real_sh_applies_init_file[path-with-space-/bin/sh]
+PASSED test_referee.py::test_R7_real_sh_applies_init_file[path-with-space-/usr/bin/dash]
+PASSED test_referee.py::test_R7_real_sh_applies_init_file[path-with-space-bash-posix]
+PASSED test_referee.py::test_R8_bash_zsh_identical_to_base[plain-path-/bin/bash]
+PASSED test_referee.py::test_R8_bash_zsh_identical_to_base[plain-path-/usr/bin/zsh]
+SKIPPED [2] test_referee.py:137: /bin/busybox not installed
+FAILED test_referee.py::test_R8_bash_zsh_identical_to_base[path-with-space-/bin/bash]
+FAILED test_referee.py::test_R8_bash_zsh_identical_to_base[path-with-space-/usr/bin/zsh]
+2 failed, 15 passed, 2 skipped in 0.80s

@@ -25,3 +25,7 @@ prose claims (similarity, CI run ids, action_required) are not replayed.
 **Limits of this trial.** n = 1 verifier, 1 tamper type (a number in the table). A prose-only tamper would pass replay
 and be caught only by the published ROOT. Next: publish the root with the bundle (a git commit), a prose tamper, and a
 second, different verifier model.
+
+**Revision 2026-10-19 (same day).** Referee R2 v2 (accepts bash-when-installed, as the merged #159 does): #144 13->14/17,
+#152 10->11/17; report revised with a dated note. Public bundle blanks the Author column (PRs by number only) and the
+local username in pytest tmp paths. Published root: e26869d05c62625a9989d9222838ed1af7542941d71d334b189756003b80c646.

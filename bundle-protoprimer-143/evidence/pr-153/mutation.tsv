@@ -1,0 +1,6 @@
+153	CLEAN	0	16 passed in 0.91s
+153	MASK	1	2 failed, 14 passed in 2.28s
+153	M1	1	1 failed, 15 passed in 1.06s
+153	M2	1	1 failed, 15 passed in 1.01s
+153	M3	1	1 failed, 15 passed in 1.87s
+153	M4	1	1 failed, 15 passed in 2.08s

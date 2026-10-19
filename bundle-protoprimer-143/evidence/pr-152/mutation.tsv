@@ -1,0 +1,6 @@
+152	CLEAN	0	15 passed in 0.79s
+152	MASK	1	2 failed, 13 passed in 2.11s
+152	M1	NA	mutation not applicable
+152	M2	1	1 failed, 14 passed in 1.04s
+152	M3	1	1 failed, 14 passed in 1.96s
+152	M4	1	1 failed, 14 passed in 1.79s

@@ -6,6 +6,7 @@ naive: one table cell edited, manifest left as built.  rehash: same edit, manife
 """
 import hashlib
 import json
+import re
 import shutil
 import sys
 from pathlib import Path
@@ -36,8 +37,12 @@ def build(out: Path, tamper: str | None = None):
     for pr in PRS:
         (ev / f"pr-{pr}").mkdir(parents=True)
         for f in ("git_status_after_prime.txt", "referee_proto.log", "mutation.tsv"):
-            shutil.copy(SRC / "logs" / f"pr-{pr}" / f, ev / f"pr-{pr}" / f)
-    shutil.copy(SRC / "SAMPLE-REPORT.md", out / "report.md")
+            text = (SRC / "logs" / f"pr-{pr}" / f).read_text(encoding="utf-8", errors="replace")
+            (ev / f"pr-{pr}" / f).write_text(text.replace("pytest-of-dalea", "pytest-of-user"), encoding="utf-8")  # local username out
+    rep = (SRC / "SAMPLE-REPORT.md").read_text(encoding="utf-8")
+    # public rail (E:/station/OUTBOX.md): PRs by number, never by author -> blank the Author column, keep the columns
+    rep = re.sub(r"^(\| \d+ \| #\d+ \| )[^|]+(\|)", r"\1- \2", rep, flags=re.M)
+    (out / "report.md").write_text(rep, encoding="utf-8")
     shutil.copy(HERE / "verify.py", out / "verify.py")
     shutil.copy(HERE / "README-bundle.md", out / "README.md")
     rows = [json.loads(l) for l in ADV_ROW.read_text(encoding="utf-8").splitlines() if l.strip()]
